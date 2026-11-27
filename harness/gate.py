@@ -3,7 +3,7 @@
 No agent is involved here. The gate trusts only:
   * the locked Challenge.lean in problems/<slug>/ (checked against challenge.lock),
   * the Lean toolchain,
-  * the Check.lean file that this module writes itself.
+  * the Check.lean file that this module writes itself and harness/lean/AuditMain.lean.
 
 Layers (each one alone would catch most cheats; together they are the point):
   1. lock     - Challenge.lean hash matches challenge.lock
@@ -22,6 +22,7 @@ import hashlib
 import json
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import tempfile
@@ -191,25 +192,25 @@ import Solution
 theorem Gate.pinned : {target} := Solution.main
 """
 
-# Separate file so that `leanchecker --fresh Check` does not have to recheck all of `Lean`.
-AUDIT_TEMPLATE = """import Check
-import Lean
+# AuditMain is compiled in a clean Lean environment, never importing Solution.
+AUDIT_MAIN = Path(__file__).resolve().parent / "lean" / "AuditMain.lean"
 
-open Lean Elab Command in
-run_cmd do
-  let allowed : Array Name := #[{allowed}]
-  let pinnedName := Name.str (Name.str Name.anonymous "Gate") "pinned"
-  let conjecture := Expr.const (Name.str (Name.str Name.anonymous "Challenge") "Conjecture") []
-  let expected : Expr := {expected}
-  let pinned ← getConstInfo pinnedName
-  unless pinned.type == expected do
-    throwError "GATE_FAIL pinned type differs from locked target"
-  let axs ← Lean.collectAxioms pinnedName
-  logInfo m!"GATE_AXIOMS {{axs.toList}}"
-  for a in axs do
-    unless allowed.contains a do
-      throwError m!"GATE_FAIL non-standard axiom {{a}}"
-"""
+
+def _audit_report(log: str, token: str) -> dict:
+    lines = [line.removeprefix("GATE_AUDIT ") for line in log.splitlines()
+             if line.startswith("GATE_AUDIT ")]
+    try:
+        if len(lines) != 1:
+            raise ValueError("expected exactly one audit report")
+        report = json.loads(lines[0])
+        if (not isinstance(report, dict) or report.get("token") != token
+                or report.get("status") not in ("ok", "pin", "axioms")
+                or not isinstance(report.get("axioms"), list)
+                or not all(isinstance(a, str) for a in report["axioms"])):
+            raise ValueError("invalid audit report")
+        return report
+    except (ValueError, TypeError) as e:
+        raise GateFail("axioms", "missing or invalid token-bound audit report", log) from e
 
 
 def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
@@ -248,11 +249,8 @@ def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
             (w / "Challenge.lean").write_bytes(challenge_bytes)          # the LOCKED copy
             (w / "Solution.lean").write_bytes(solution_bytes)
             target = "Challenge.Conjecture" if direction == "proof" else "¬ Challenge.Conjecture"
-            allowed = ", ".join(f"``{a}" for a in STANDARD_AXIOMS)
             (w / "Check.lean").write_text(CHECK_TEMPLATE.format(target=target))
-            expected = ("conjecture" if direction == "proof" else
-                        'Expr.app (Expr.const (Name.str Name.anonymous "Not") []) conjecture')
-            (w / "Audit.lean").write_text(AUDIT_TEMPLATE.format(allowed=allowed, expected=expected))
+            (w / "AuditMain.lean").write_bytes(AUDIT_MAIN.read_bytes())
             env = _clean_env(f"{w / 'out'}{os.pathsep}{base_path}")
             res.lean_version = _run([lean, "--version"], w, env, timeout, "compile").strip()
             run = lambda cmd, layer: _run(cmd, w, env, timeout, layer)
@@ -266,19 +264,22 @@ def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
                 e.reason = "Solution.main does not prove the pinned target (or is missing)"
                 raise
             res.layers_passed.append("pin")
-            # 5. axioms, collected transitively
+            # 5. inspect the compiled module as data, from a clean program.
+            token = secrets.token_hex(32)
             try:
-                log = run([lean, mem, "Audit.lean"], "axioms")
+                log = run([lean, mem, "--run", "AuditMain.lean", direction, token], "axioms")
             except GateFail as e:
-                if "GATE_FAIL pinned type differs" in e.log:
+                report = _audit_report(e.log, token)
+                if report["status"] == "pin":
                     e.layer, e.reason = "pin", "kernel type differs from locked target"
-                if "GATE_FAIL non-standard axiom" in e.log:
-                    e.reason = "non-standard axiom: " + e.log.split("GATE_FAIL non-standard axiom", 1)[1].split()[0]
-                raise
-            m = re.search(r"GATE_AXIOMS \[(.*?)\]", log)
-            if not m:
-                raise GateFail("axioms", "audit produced no axiom report", log)
-            res.axioms = [a.strip() for a in m.group(1).split(",") if a.strip()]
+                elif report["status"] == "axioms":
+                    e.reason = "non-standard axiom: " + ", ".join(
+                        a for a in report["axioms"] if a not in STANDARD_AXIOMS)
+                raise e
+            report = _audit_report(log, token)
+            if report["status"] != "ok":
+                raise GateFail("axioms", "audit did not report success", log)
+            res.axioms = report["axioms"]
             res.layers_passed.append("axioms")
             # 6. recheck every declaration from the .oleans
             checker = bindir / "leanchecker"
