@@ -25,4 +25,7 @@ hunter = 7200
 reproducer = 1800
 formalizer = 3600
 prior_art = 1800
+statement_check = 1800
+eligibility = 1800
+referee = 1800
 writer = 1800

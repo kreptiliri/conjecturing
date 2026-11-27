@@ -1,4 +1,6 @@
-# conjecture-harness
+# conjecturing
+
+> **Running this as an agent?** Read [`AGENTS.md`](AGENTS.md). **Verifying a result?** See [`VERIFY.md`](VERIFY.md).
 
 A pipeline for hunting counterexamples and proofs with AI agents, where **no agent is
 trusted** and nothing counts until deterministic checks and a human say so.

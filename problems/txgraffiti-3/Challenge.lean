@@ -21,7 +21,8 @@ namespace Challenge
 
 open SimpleGraph
 
-variable {α : Type*}
+-- Same instance arguments as upstream (Matching.lean / Saturation.lean / Domination.lean).
+variable {α : Type*} [Fintype α] [DecidableEq α]
 
 /-- `D` dominates `G`: every vertex is in `D` or adjacent to a vertex of `D`. -/
 def IsDominating (G : SimpleGraph α) (D : Set α) : Prop :=
