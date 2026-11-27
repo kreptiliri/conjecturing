@@ -1,7 +1,8 @@
 # Proof checker review
 
-Tested on macOS arm64 with elan and leanprover/lean4:v4.35.0. Work is on
-`test-coverage`; the original suite passed **15/15** before changes.
+Tested on macOS arm64 with elan and leanprover/lean4:v4.35.0. The initial
+review was on `test-coverage` (merged as PR #1); the standalone audit follow-up
+is on `standalone-audit`. The original suite passed **15/15** before changes.
 
 ## Confirmed acceptance bug and fixes
 
@@ -135,3 +136,46 @@ bugs. Pin type comparison intentionally requires the exact locked constant/type.
   completed through reproduction, Lean recheck and packaging; correctly warned that
   the toy is already known. Generated research/results are excluded from this PR.
 - CI runs both the expanded gate suite and the regression suite.
+
+
+## Standalone audit follow-up
+
+The old Audit.lean imported Check and therefore Solution before elaborating its
+own audit code. Imported instances and macros could change that code. The new
+`harness/lean/AuditMain.lean` imports only Lean and runs with `lean --run`.
+At runtime it loads Check with `Lean.importModules` and `loadExts := false`;
+Solution declarations are inspected as data, without running their initializers
+or activating their environment extensions. `Lean.collectAxioms` traverses the
+loaded environment without relying on imported extension caches.
+
+The expected proof/disproof type is constructed explicitly and compared using
+`Lean.Expr.equal`. Axiom membership uses `Lean.Name.beq` against exactly propext,
+Classical.choice and Quot.sound. Neither comparison selects a BEq instance.
+Check still imports only Challenge and Solution, so mandatory
+`leanchecker --fresh Check` does not acquire an audit dependency on Lean.
+
+Each invocation receives a fresh 256-bit random token. AuditMain emits one JSON
+report carrying the token, status and axiom list. Acceptance requires exit zero,
+exactly one valid report, the matching token, and status `ok`. Nonzero exit,
+missing/duplicate reports, wrong tokens, and failure statuses fail closed.
+The token binds a report to this run; process isolation assumptions above still
+apply to untrusted same-user metaprograms.
+
+New regressions (each also checked with lint ON):
+
+| File under tests/cheats | Attempt | Lint OFF |
+|---|---|---|
+| `case_beq_name.lean` | Always-true BEq Lean.Name plus a custom axiom. | REJECTED: axioms |
+| `case_beq_expr.lean` | Always-true BEq Lean.Expr plus a notation-substituted false target. | REJECTED: pin |
+| `case_macro_run_cmd.lean` | Replace run_cmd with a forged empty axiom report. | REJECTED: axioms |
+
+Validation after refactoring:
+
+- `python3 tests/run_gate_tests.py`: **57/57**, retaining all 51 existing cases.
+- Regression suites: **16 tests passed** (11 Python regressions and five real
+  Lean integration tests), including exit status and token-protocol checks.
+- A real Lean initializer writes a marker during compilation; running AuditMain
+  leaves that marker unchanged and the honest solution passes through recheck.
+- CI initializes Lean with `lean --version` before starting concurrent tests.
+  PR #1's CI failures came from concurrent first-use elan installation and its
+  diagnostics contaminating toolchain-prefix discovery.

@@ -11,6 +11,8 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain leanprover/lean4:v4.35.0
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Initialize Lean before concurrent tests
+        run: lean --version
       - name: Gate self-test (honest passes, cheats fail)
         run: python3 tests/run_gate_tests.py
       - name: Trust-boundary regression tests

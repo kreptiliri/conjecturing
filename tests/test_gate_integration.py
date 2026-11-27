@@ -50,6 +50,26 @@ class BuildBoundaries(unittest.TestCase):
         self.assertFalse(r.ok)
         self.assertEqual(r.failed_layer, 'axioms', r.to_json())
 
+    def test_audit_does_not_execute_solution_initializers(self):
+        marker = self.w / 'initializers.txt'
+        sol = self.w / 'Solution.lean'
+        sol.write_text(HONEST.read_text().replace('import Challenge',
+            'import Challenge\ninitialize do\n'
+            f'  IO.FS.writeFile "{marker}" ((← IO.FS.readFile "{marker}") ++ "x")'))
+        marker.write_text('')
+        original = gate._run
+        def run(cmd, cwd, env, timeout, layer):
+            if layer == 'axioms':
+                before = marker.read_text()
+                self.assertTrue(before, 'initializer must run during compilation')
+                log = original(cmd, cwd, env, timeout, layer)
+                self.assertEqual(marker.read_text(), before)
+                return log
+            return original(cmd, cwd, env, timeout, layer)
+        with patch.object(gate, '_run', side_effect=run):
+            result = gate.run_gate(PROBLEM, sol, 'disproof', skip_lint=True)
+        self.assertTrue(result.ok, result.to_json())
+
     def test_checked_bytes_are_compiled(self):
         pd = self.w / 'problem'
         shutil.copytree(PROBLEM, pd)

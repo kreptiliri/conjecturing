@@ -110,6 +110,38 @@ class Regressions(unittest.TestCase):
                 with patch.object(gate.subprocess, 'run', **opts), self.assertRaises(gate.GateFail):
                     gate._run(['lean'], self.w, {}, 1, 'compile')
 
+    def test_audit_requires_exit_success_and_matching_token(self):
+        problem = Path(__file__).resolve().parent.parent / 'problems/euler-41'
+        solution = Path(__file__).resolve().parent.parent / 'examples/euler-41/Solution.lean'
+        (self.w / 'leanchecker').touch()
+        for mode in ['valid', 'missing', 'wrong-token', 'duplicate', 'failed-exit', 'failed-status']:
+            def run(cmd, cwd, env, timeout, layer):
+                if layer != 'axioms':
+                    return ''
+                self.assertEqual(cmd[2:4], ['--run', 'AuditMain.lean'])
+                token = cmd[-1]
+                self.assertEqual(len(token), 64)
+                data = {'token': token, 'status': 'ok', 'axioms': []}
+                if mode == 'wrong-token':
+                    data['token'] = 'stale-token'
+                if mode == 'failed-status':
+                    data['status'] = 'axioms'
+                log = 'GATE_AUDIT ' + json.dumps(data) + '\n'
+                if mode == 'missing':
+                    return 'GATE_AXIOMS []'
+                if mode == 'duplicate':
+                    return log + log
+                if mode == 'failed-exit':
+                    raise gate.GateFail('axioms', 'exit 1', log)
+                return log
+            with self.subTest(mode=mode), \
+                 patch.object(gate, '_toolchain', return_value=(self.w, '')), \
+                 patch.object(gate, '_run', side_effect=run):
+                result = gate.run_gate(problem, solution, 'disproof')
+            self.assertEqual(result.ok, mode == 'valid', result.to_json())
+            if mode != 'valid':
+                self.assertEqual(result.failed_layer, 'axioms', result.to_json())
+
     def test_lexer_preserves_boundaries(self):
         self.assertEqual(gate.strip_comments('a/- outer /- inner -/ -/b'), 'a  b')
         self.assertEqual(gate.strip_comments('«/-» axiom «-/»'), '«/-» axiom «-/»')
