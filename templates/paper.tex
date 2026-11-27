@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{theorem}{Theorem}
+
+\title{A counterexample to TITLE-OF-CONJECTURE}
+\author{AUTHOR NAME\thanks{With AI assistance; see Section~\ref{sec:ai}.}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+One or two sentences: which conjecture, what fails, and how it was checked.
+\end{abstract}
+
+\section{The conjecture}
+\begin{conjecture}[SOURCE, Conjecture X.Y]
+Exact statement from the source, with all hypotheses.
+\end{conjecture}
+
+\section{The counterexample}
+\begin{theorem}
+Precise statement of what is proved. Say if it is a small-case exception.
+\end{theorem}
+\begin{proof}
+Human-readable argument.
+\end{proof}
+
+\section{Verification}
+\paragraph{Computation.} Two independently written exact verifiers agree (\texttt{verify.py},
+\texttt{verify\_independent.py}).
+\paragraph{Lean.} The locked statement:
+\begin{lstlisting}
+-- paste Challenge.lean here
+\end{lstlisting}
+\texttt{Solution.main} proves its negation. Gate layers passed: LIST.
+Axioms: only \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}.
+Lean version: VERSION. SHA-256 of Challenge.lean: HASH; of Solution.lean: HASH.
+
+\section{Prior work}
+Summary of PRIOR\_ART.md and its verdict.
+
+\section{Use of AI}\label{sec:ai}
+Which steps were done by which system; what a human checked.
+
+\begin{thebibliography}{9}
+\bibitem{src} Authors, \emph{Title}, arXiv:XXXX.XXXXX (version).
+\end{thebibliography}
+\end{document}

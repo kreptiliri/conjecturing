@@ -1,0 +1,11 @@
+runs/
+__pycache__/
+*.olean
+*.ilean
+*.ndjson
+.lake/
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.out

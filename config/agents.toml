@@ -1,0 +1,28 @@
+# Agent CLIs the harness can call. {prompt} = prompt text, {prompt_file} = path
+# to PROMPT.md in the workspace, {workdir} = workspace dir. Commands run with
+# cwd = workspace. Check your CLI's current flags; these are starting points.
+
+[agents.claude]
+cmd = ["claude", "-p", "{prompt}", "--permission-mode", "acceptEdits",
+       "--allowedTools", "Bash,Read,Write,Edit,WebSearch,WebFetch"]
+
+[agents.codex]
+cmd = ["codex", "exec", "--full-auto", "{prompt}"]
+
+# Any script that reads PROMPT.md and works in the current directory.
+[agents.custom]
+cmd = ["./my_agent.sh", "{prompt_file}"]
+
+# Scripted stand-in used by tests/ (no model calls).
+[agents.fake]
+cmd = ["python3", "{root}/tests/fake_agent.py", "{prompt_file}"]
+
+# Removed from the environment before an agent runs.
+strip_env = ["GITHUB_TOKEN", "GH_TOKEN", "AWS_SECRET_ACCESS_KEY", "OPENAI_API_KEY_ADMIN"]
+
+[timeouts]   # seconds per role
+hunter = 7200
+reproducer = 1800
+formalizer = 3600
+prior_art = 1800
+writer = 1800
