@@ -27,16 +27,19 @@ google-deepmind/formal-conjectures `FormalConjectures/Arxiv/2507.17780/3.lean`.
 Compare Challenge.lean to the source, hypothesis by hypothesis. Tick each box, or
 write what differs.
 
-- [ ] Every hypothesis in the source appears in Challenge.lean, none added
+- [x] Every hypothesis in the source appears in Challenge.lean, none added
       (source: r-regular, r > 0. Lean: `∀ v, G.degree v = r` and `1 ≤ r`.
       No connectivity assumed in either.)
-- [ ] Domains and objects match: finite simple graphs (Lean: `Fintype V`, `SimpleGraph`)
-- [ ] i(G) definition matches: Lean takes the min size of a set that is independent
+      Note: true of Conjecture 3 in Section 2.3. The paper's Appendix A Lean listing
+      does add `connected G` (and `order G ≥ 1`); immaterial, since the connected and
+      unrestricted versions are equivalent (see STATEMENT_CHECK.md).
+- [x] Domains and objects match: finite simple graphs (Lean: `Fintype V`, `SimpleGraph`)
+- [x] i(G) definition matches: Lean takes the min size of a set that is independent
       AND dominating, which is the same as a maximal independent set
-- [ ] μ*(G) definition matches: Lean takes the min size of a matching that no edge
+- [x] μ*(G) definition matches: Lean takes the min size of a matching that no edge
       can be added to
-- [ ] Inequality direction and strictness match: i(G) ≤ μ*(G)
-- [ ] The "sharp" part is NOT in Lean (fine: refuting the inequality refutes the conjecture)
+- [x] Inequality direction and strictness match: i(G) ≤ μ*(G)
+- [x] The "sharp" part is NOT in Lean (fine: refuting the inequality refutes the conjecture)
 
 # Notes for agents
 

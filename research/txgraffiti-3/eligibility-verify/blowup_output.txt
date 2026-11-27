@@ -1,0 +1,5 @@
+blow-up identity i(G[mK1]) = m*i(G) held in 300 random trials
+counterexample48.g6 m=2 n=96 degrees={6} maximal_matching=True size=30  so mu*<=30 < 32=i
+counterexample48.g6 m=3 n=144 degrees={9} maximal_matching=True size=45  so mu*<=45 < 48=i
+counterexample.g6 m=2 n=100 degrees={6} maximal_matching=True size=30  so mu*<=30 < 32=i
+counterexample.g6 m=3 n=150 degrees={9} maximal_matching=True size=45  so mu*<=45 < 48=i

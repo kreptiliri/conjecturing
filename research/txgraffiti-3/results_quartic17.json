@@ -1,0 +1,21 @@
+[
+  {
+    "label": "quartic r=4 n=17",
+    "total": 86221634,
+    "pruned_greedy": 63188310,
+    "pruned_i": 21439849,
+    "checked_mu": 1593475,
+    "tight": 34670,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=17 r=4 i=5 mu=5 comp=0 g6=PO_oYN@AA?oSM??Bm???bCEC",
+      "TIGHT n=17 r=4 i=5 mu=5 comp=0 g6=PWC?]G??]DYCKCDG@_GC`I?c",
+      "TIGHT n=17 r=4 i=5 mu=5 comp=0 g6=PWC_]G?CODA_oBGBYC?PaAk?",
+      "TIGHT n=17 r=4 i=5 mu=5 comp=0 g6=POC_G@GC{@?`oPYOKgCcOE`?",
+      "TIGHT n=17 r=4 i=5 mu=5 comp=0 g6=PSC_W@GC{@?_oPYOKg?CWCBC"
+    ],
+    "elapsed_s": 57.064
+  }
+]

@@ -1,0 +1,752 @@
+[
+  {
+    "label": "cubic r=3 n=4",
+    "total": 1,
+    "pruned_greedy": 1,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.009
+  },
+  {
+    "label": "cubic r=3 n=6",
+    "total": 2,
+    "pruned_greedy": 0,
+    "pruned_i": 0,
+    "checked_mu": 2,
+    "tight": 2,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=6 r=3 i=3 mu=3 comp=0 g6=EFz_",
+      "TIGHT n=6 r=3 i=2 mu=2 comp=0 g6=EUxo"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "cubic r=3 n=8",
+    "total": 5,
+    "pruned_greedy": 3,
+    "pruned_i": 0,
+    "checked_mu": 2,
+    "tight": 2,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=8 r=3 i=3 mu=3 comp=0 g6=GCrb`o",
+      "TIGHT n=8 r=3 i=3 mu=3 comp=0 g6=GCY^B_"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "cubic r=3 n=10",
+    "total": 19,
+    "pruned_greedy": 0,
+    "pruned_i": 0,
+    "checked_mu": 19,
+    "tight": 10,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=10 r=3 i=3 mu=3 comp=0 g6=I?BeeOwM?",
+      "TIGHT n=10 r=3 i=4 mu=4 comp=0 g6=I?bFB_wF?",
+      "TIGHT n=10 r=3 i=3 mu=3 comp=0 g6=I?`cspoX?",
+      "TIGHT n=10 r=3 i=3 mu=3 comp=0 g6=ICOfBaKF?",
+      "TIGHT n=10 r=3 i=3 mu=3 comp=0 g6=ICOf@pSb?"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "cubic r=3 n=12",
+    "total": 85,
+    "pruned_greedy": 29,
+    "pruned_i": 11,
+    "checked_mu": 45,
+    "tight": 42,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=12 r=3 i=4 mu=4 comp=0 g6=K??FEbGL@WB_",
+      "TIGHT n=12 r=3 i=4 mu=4 comp=0 g6=K??FEagT@WB_",
+      "TIGHT n=12 r=3 i=4 mu=4 comp=0 g6=K??FEaKY@gB_",
+      "TIGHT n=12 r=3 i=4 mu=4 comp=0 g6=K??FEaKR@oE_",
+      "TIGHT n=12 r=3 i=4 mu=4 comp=0 g6=K?AEB`gHcoB_"
+    ],
+    "elapsed_s": 0.008
+  },
+  {
+    "label": "cubic r=3 n=14",
+    "total": 509,
+    "pruned_greedy": 437,
+    "pruned_i": 54,
+    "checked_mu": 18,
+    "tight": 18,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=14 r=3 i=5 mu=5 comp=0 g6=M???FBOq@KCoF?E_?",
+      "TIGHT n=14 r=3 i=5 mu=5 comp=0 g6=M???FBOiAgDOD_B_?",
+      "TIGHT n=14 r=3 i=5 mu=5 comp=0 g6=M??CB@ow?sAoBOb??",
+      "TIGHT n=14 r=3 i=5 mu=5 comp=0 g6=M??CBAWsB_CoBOB_?",
+      "TIGHT n=14 r=3 i=5 mu=5 comp=0 g6=M??CB@`[CoQ_B_B_?"
+    ],
+    "elapsed_s": 0.041
+  },
+  {
+    "label": "cubic r=3 n=16",
+    "total": 4060,
+    "pruned_greedy": 638,
+    "pruned_i": 633,
+    "checked_mu": 2789,
+    "tight": 1470,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=16 r=3 i=5 mu=5 comp=0 g6=O????B_sCWHOIOH_Ag?e?",
+      "TIGHT n=16 r=3 i=5 mu=5 comp=0 g6=O????B_sCWHOBOH_EG?e?",
+      "TIGHT n=16 r=3 i=5 mu=5 comp=0 g6=O???CB?wB@F?EO@oAo?[?",
+      "TIGHT n=16 r=3 i=5 mu=5 comp=0 g6=O???CB?wB@F?@o@oB_?s?",
+      "TIGHT n=16 r=3 i=5 mu=5 comp=0 g6=O???CB?wA`DGM?D_?w?[?"
+    ],
+    "elapsed_s": 0.474
+  },
+  {
+    "label": "cubic r=3 n=18",
+    "total": 41301,
+    "pruned_greedy": 31474,
+    "pruned_i": 7992,
+    "checked_mu": 1835,
+    "tight": 1692,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=18 r=3 i=6 mu=6 comp=0 g6=Q??????wF?R?U?D_?w?L?AW?`_?",
+      "TIGHT n=18 r=3 i=6 mu=6 comp=0 g6=Q??????wF?R?T?K_@K?[?@W?B_?",
+      "TIGHT n=18 r=3 i=6 mu=6 comp=0 g6=Q??????wF?R?T?E_Co?F?@W?H_?",
+      "TIGHT n=18 r=3 i=6 mu=6 comp=0 g6=Q??????wF?R?P_F?AW?L?GW?H_?",
+      "TIGHT n=18 r=3 i=6 mu=6 comp=0 g6=Q??????wE_[?M?D_@K?R?@o?E_?"
+    ],
+    "elapsed_s": 7.183
+  },
+  {
+    "label": "cubic r=3 n=20",
+    "total": 510489,
+    "pruned_greedy": 36497,
+    "pruned_i": 55003,
+    "checked_mu": 418989,
+    "tight": 17781,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=20 r=3 i=6 mu=6 comp=0 g6=S???????F?Y?q?H_Co?J??w?@o?o_?o_?",
+      "TIGHT n=20 r=3 i=6 mu=6 comp=0 g6=S???????F?Y?b?I_BG@`?@c?DO?F?A@_?",
+      "TIGHT n=20 r=3 i=6 mu=6 comp=0 g6=S???????F?R?`_SOGE?k?HG?Go@Q??E_?",
+      "TIGHT n=20 r=3 i=6 mu=6 comp=0 g6=S??????_E?M?WCBCPO?q?DO?Ag?L?@B??",
+      "TIGHT n=20 r=3 i=6 mu=6 comp=0 g6=S??????_E?M?QC@cOg@g?IG?Ag?U??b??"
+    ],
+    "elapsed_s": 22.651
+  },
+  {
+    "label": "quartic r=4 n=5",
+    "total": 1,
+    "pruned_greedy": 1,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.007
+  },
+  {
+    "label": "quartic r=4 n=6",
+    "total": 1,
+    "pruned_greedy": 0,
+    "pruned_i": 0,
+    "checked_mu": 1,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=6 r=4 i=2 mu=2 comp=0 g6=E]~o"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "quartic r=4 n=7",
+    "total": 2,
+    "pruned_greedy": 0,
+    "pruned_i": 0,
+    "checked_mu": 2,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=7 r=4 i=2 mu=2 comp=0 g6=F]luW"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "quartic r=4 n=8",
+    "total": 6,
+    "pruned_greedy": 5,
+    "pruned_i": 0,
+    "checked_mu": 1,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=8 r=4 i=4 mu=4 comp=0 g6=G]Ku]W"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "quartic r=4 n=9",
+    "total": 16,
+    "pruned_greedy": 13,
+    "pruned_i": 0,
+    "checked_mu": 3,
+    "tight": 3,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=9 r=4 i=3 mu=3 comp=0 g6=HYkq[NP",
+      "TIGHT n=9 r=4 i=3 mu=3 comp=0 g6=HYko]NQ",
+      "TIGHT n=9 r=4 i=3 mu=3 comp=0 g6=HSTenO{"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "quartic r=4 n=10",
+    "total": 59,
+    "pruned_greedy": 20,
+    "pruned_i": 15,
+    "checked_mu": 24,
+    "tight": 5,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=10 r=4 i=3 mu=3 comp=0 g6=I]koWLBoW",
+      "TIGHT n=10 r=4 i=3 mu=3 comp=0 g6=IQKq[NPy?",
+      "TIGHT n=10 r=4 i=3 mu=3 comp=0 g6=IWko]LQsG",
+      "TIGHT n=10 r=4 i=4 mu=4 comp=0 g6=I]KoWZBoo",
+      "TIGHT n=10 r=4 i=3 mu=3 comp=0 g6=ISXuJOReG"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "quartic r=4 n=11",
+    "total": 265,
+    "pruned_greedy": 252,
+    "pruned_i": 11,
+    "checked_mu": 2,
+    "tight": 2,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=11 r=4 i=4 mu=4 comp=0 g6=J]KSWXBoPH_",
+      "TIGHT n=11 r=4 i=4 mu=4 comp=0 g6=J~?@WxKb?F_"
+    ],
+    "elapsed_s": 0.006
+  },
+  {
+    "label": "quartic r=4 n=12",
+    "total": 1544,
+    "pruned_greedy": 1386,
+    "pruned_i": 132,
+    "checked_mu": 26,
+    "tight": 25,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=12 r=4 i=4 mu=4 comp=0 g6=KWKo]GGC}DYC",
+      "TIGHT n=12 r=4 i=4 mu=4 comp=0 g6=KWKoUHGC}DQo",
+      "TIGHT n=12 r=4 i=4 mu=4 comp=0 g6=K[GqSHGC{LJG",
+      "TIGHT n=12 r=4 i=4 mu=4 comp=0 g6=KQKQ[LPaBGsE",
+      "TIGHT n=12 r=4 i=4 mu=4 comp=0 g6=KWKoMEQQKIjO"
+    ],
+    "elapsed_s": 0.009
+  },
+  {
+    "label": "quartic r=4 n=13",
+    "total": 10778,
+    "pruned_greedy": 7939,
+    "pruned_i": 2445,
+    "checked_mu": 394,
+    "tight": 142,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=13 r=4 i=4 mu=4 comp=0 g6=L]koWG@OU@_U?x",
+      "TIGHT n=13 r=4 i=4 mu=4 comp=0 g6=LKKa]DGgGJABd@",
+      "TIGHT n=13 r=4 i=5 mu=5 comp=0 g6=L[Co]GGCyDWCIB",
+      "TIGHT n=13 r=4 i=4 mu=4 comp=0 g6=LKCoSHGC}DLGh_",
+      "TIGHT n=13 r=4 i=4 mu=4 comp=0 g6=L[CqSHG?wLWHMC"
+    ],
+    "elapsed_s": 0.031
+  },
+  {
+    "label": "quartic r=4 n=14",
+    "total": 88168,
+    "pruned_greedy": 29493,
+    "pruned_i": 30682,
+    "checked_mu": 27993,
+    "tight": 229,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=14 r=4 i=4 mu=4 comp=0 g6=MKCa]HO_L?`DM@@s?",
+      "TIGHT n=14 r=4 i=4 mu=4 comp=0 g6=MWGoS@?C}DYGFOBg?",
+      "TIGHT n=14 r=4 i=4 mu=4 comp=0 g6=MWK_UGGCyDAod@oI?",
+      "TIGHT n=14 r=4 i=4 mu=4 comp=0 g6=MKK?]GG?]DEawGDc?",
+      "TIGHT n=14 r=4 i=4 mu=4 comp=0 g6=M[GoQGGCgLWDooES?"
+    ],
+    "elapsed_s": 0.18
+  },
+  {
+    "label": "quartic r=4 n=15",
+    "total": 805491,
+    "pruned_greedy": 784045,
+    "pruned_i": 21291,
+    "checked_mu": 155,
+    "tight": 144,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=15 r=4 i=5 mu=5 comp=0 g6=NWCo]G?Cm@WCIS?bBCG",
+      "TIGHT n=15 r=4 i=5 mu=5 comp=0 g6=NKCQQ@GC{LDGh?`@CGW",
+      "TIGHT n=15 r=4 i=5 mu=5 comp=0 g6=NYKq[DP_GO?`?D?Uo@o",
+      "TIGHT n=15 r=4 i=5 mu=5 comp=0 g6=NSGsOHBOO`hH`CW_B?W",
+      "TIGHT n=15 r=4 i=5 mu=5 comp=0 g6=N]KCGP@OOHo_?lLA@W_"
+    ],
+    "elapsed_s": 0.393
+  },
+  {
+    "label": "quartic r=4 n=16",
+    "total": 8037418,
+    "pruned_greedy": 7283827,
+    "pruned_i": 742729,
+    "checked_mu": 10862,
+    "tight": 5274,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=16 r=4 i=5 mu=5 comp=0 g6=O?CoUGGC}DI?i?GHSoA?M",
+      "TIGHT n=16 r=4 i=5 mu=5 comp=0 g6=OWG?]?G?}DYCL?CC?gWwA",
+      "TIGHT n=16 r=4 i=5 mu=5 comp=0 g6=OWC_]GG?mDWC?SL?a?oo`",
+      "TIGHT n=16 r=4 i=5 mu=5 comp=0 g6=OWK_I??C}?YCBGCIoX?]?",
+      "TIGHT n=16 r=4 i=5 mu=5 comp=0 g6=OWC_U??C}CYCBGCI`g@K@"
+    ],
+    "elapsed_s": 3.305
+  },
+  {
+    "label": "5-reg r=5 n=6",
+    "total": 1,
+    "pruned_greedy": 1,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.007
+  },
+  {
+    "label": "5-reg r=5 n=8",
+    "total": 3,
+    "pruned_greedy": 3,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "5-reg r=5 n=10",
+    "total": 60,
+    "pruned_greedy": 50,
+    "pruned_i": 6,
+    "checked_mu": 4,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=10 r=5 i=5 mu=5 comp=0 g6=I?B~vrw}?"
+    ],
+    "elapsed_s": 0.006
+  },
+  {
+    "label": "5-reg r=5 n=12",
+    "total": 7848,
+    "pruned_greedy": 7802,
+    "pruned_i": 43,
+    "checked_mu": 3,
+    "tight": 3,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=12 r=5 i=4 mu=4 comp=0 g6=K?BEH{}}Fo^?",
+      "TIGHT n=12 r=5 i=4 mu=4 comp=0 g6=K?bFFbw^@{Bw",
+      "TIGHT n=12 r=5 i=4 mu=4 comp=0 g6=K?bDKnw^BsNG"
+    ],
+    "elapsed_s": 0.508
+  },
+  {
+    "label": "5-reg r=5 n=14",
+    "total": 3459383,
+    "pruned_greedy": 3163826,
+    "pruned_i": 289635,
+    "checked_mu": 5922,
+    "tight": 9,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=14 r=5 i=4 mu=4 comp=0 g6=M?`@CbkufWJWLoLo?",
+      "TIGHT n=14 r=5 i=5 mu=5 comp=0 g6=M?ACKLw`~oN_]_]O?",
+      "TIGHT n=14 r=5 i=4 mu=4 comp=0 g6=M?`@Cbs|BULWf_Fo?",
+      "TIGHT n=14 r=5 i=4 mu=4 comp=0 g6=M??FFbgxCyJcN_Fc?",
+      "TIGHT n=14 r=5 i=5 mu=5 comp=0 g6=M?AEFBo}BwFoFoBw?"
+    ],
+    "elapsed_s": 34.015
+  },
+  {
+    "label": "6-reg r=6 n=7",
+    "total": 1,
+    "pruned_greedy": 1,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.006
+  },
+  {
+    "label": "6-reg r=6 n=8",
+    "total": 1,
+    "pruned_greedy": 1,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "6-reg r=6 n=9",
+    "total": 4,
+    "pruned_greedy": 3,
+    "pruned_i": 0,
+    "checked_mu": 1,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=9 r=6 i=3 mu=3 comp=0 g6=HFzf~z{"
+    ],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "6-reg r=6 n=10",
+    "total": 21,
+    "pruned_greedy": 21,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "6-reg r=6 n=11",
+    "total": 266,
+    "pruned_greedy": 243,
+    "pruned_i": 18,
+    "checked_mu": 5,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=11 r=6 i=3 mu=3 comp=0 g6=J?B~vr{}fq?"
+    ],
+    "elapsed_s": 0.016
+  },
+  {
+    "label": "6-reg r=6 n=12",
+    "total": 7849,
+    "pruned_greedy": 7847,
+    "pruned_i": 0,
+    "checked_mu": 2,
+    "tight": 2,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=12 r=6 i=6 mu=6 comp=0 g6=K??F~z{~Fw^_",
+      "TIGHT n=12 r=6 i=4 mu=4 comp=0 g6=K?rFfb{~@}Fw"
+    ],
+    "elapsed_s": 0.518
+  },
+  {
+    "label": "6-reg r=6 n=13",
+    "total": 367860,
+    "pruned_greedy": 367270,
+    "pruned_i": 588,
+    "checked_mu": 2,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=13 r=6 i=4 mu=4 comp=0 g6=L?BEH{}~Fq^O}G"
+    ],
+    "elapsed_s": 7.148
+  },
+  {
+    "label": "comp(3-reg) r=4 n=8",
+    "total": 6,
+    "pruned_greedy": 4,
+    "pruned_i": 1,
+    "checked_mu": 1,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=8 r=4 i=4 mu=4 comp=1 g6=GQhTQg"
+    ],
+    "elapsed_s": 0.007
+  },
+  {
+    "label": "comp(3-reg) r=6 n=10",
+    "total": 21,
+    "pruned_greedy": 18,
+    "pruned_i": 3,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.005
+  },
+  {
+    "label": "comp(3-reg) r=8 n=12",
+    "total": 94,
+    "pruned_greedy": 88,
+    "pruned_i": 5,
+    "checked_mu": 1,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=12 r=8 i=4 mu=4 comp=1 g6=KCOcaOccaQCc"
+    ],
+    "elapsed_s": 0.008
+  },
+  {
+    "label": "comp(3-reg) r=10 n=14",
+    "total": 540,
+    "pruned_greedy": 523,
+    "pruned_i": 17,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.041
+  },
+  {
+    "label": "comp(3-reg) r=12 n=16",
+    "total": 4207,
+    "pruned_greedy": 4207,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.465
+  },
+  {
+    "label": "comp(3-reg) r=14 n=18",
+    "total": 42110,
+    "pruned_greedy": 42110,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 7.116
+  },
+  {
+    "label": "comp(3-reg) r=16 n=20",
+    "total": 516344,
+    "pruned_greedy": 516344,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 21.5
+  },
+  {
+    "label": "comp(4-reg) r=4 n=9",
+    "total": 16,
+    "pruned_greedy": 11,
+    "pruned_i": 2,
+    "checked_mu": 3,
+    "tight": 3,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=9 r=4 i=3 mu=3 comp=1 g6=H]dO\\Te",
+      "TIGHT n=9 r=4 i=3 mu=3 comp=1 g6=H[|aGmR",
+      "TIGHT n=9 r=4 i=3 mu=3 comp=1 g6=HSTenO{"
+    ],
+    "elapsed_s": 0.008
+  },
+  {
+    "label": "comp(4-reg) r=5 n=10",
+    "total": 60,
+    "pruned_greedy": 51,
+    "pruned_i": 5,
+    "checked_mu": 4,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=10 r=5 i=5 mu=5 comp=1 g6=I~{?GKF@w"
+    ],
+    "elapsed_s": 0.006
+  },
+  {
+    "label": "comp(4-reg) r=6 n=11",
+    "total": 266,
+    "pruned_greedy": 243,
+    "pruned_i": 18,
+    "checked_mu": 5,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=11 r=6 i=3 mu=3 comp=1 g6=J]{?GKF@~_?"
+    ],
+    "elapsed_s": 0.007
+  },
+  {
+    "label": "comp(4-reg) r=7 n=12",
+    "total": 1547,
+    "pruned_greedy": 1547,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.01
+  },
+  {
+    "label": "comp(4-reg) r=8 n=13",
+    "total": 10786,
+    "pruned_greedy": 10786,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.029
+  },
+  {
+    "label": "comp(4-reg) r=9 n=14",
+    "total": 88193,
+    "pruned_greedy": 88193,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 0.17
+  },
+  {
+    "label": "comp(4-reg) r=10 n=15",
+    "total": 805579,
+    "pruned_greedy": 805578,
+    "pruned_i": 0,
+    "checked_mu": 1,
+    "tight": 1,
+    "ce": 0,
+    "max_gap": 0,
+    "ces": [],
+    "tights": [
+      "TIGHT n=15 r=10 i=5 mu=5 comp=1 g6=N~{?GKF@w??@?B?B_@w"
+    ],
+    "elapsed_s": 0.331
+  },
+  {
+    "label": "comp(4-reg) r=11 n=16",
+    "total": 8037796,
+    "pruned_greedy": 8037796,
+    "pruned_i": 0,
+    "checked_mu": 0,
+    "tight": 0,
+    "ce": 0,
+    "max_gap": -1,
+    "ces": [],
+    "tights": [],
+    "elapsed_s": 2.929
+  }
+]
