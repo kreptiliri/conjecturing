@@ -14,7 +14,11 @@ elif role.startswith("independent"):
     shutil.copy(EX / "verify_independent.py", here / "verify_independent.py")
 elif role.startswith("Lean"):
     shutil.copy(EX / "Solution.lean", here / "Solution.lean")
+elif role.startswith("eligibility"):
+    (here / "ELIGIBILITY.md").write_text("# Eligibility\n\nToy problem, known since 1772.\n\nVERDICT: open\n")
+elif role.startswith("adversarial"):
+    (here / "REVIEW.md").write_text("# Review\n\nToy. Statement matches.\n\nVERDICT: accept\n")
 elif role.startswith("prior"):
-    (here / "PRIOR_ART.md").write_text("# Prior art\n\nVerdict: already known (Euler, 1772). Toy problem.\n")
+    (here / "PRIOR_ART.md").write_text("# Prior art\n\nKnown since Euler (1772). Toy problem.\n\nVERDICT: already known\n")
 elif role == "writer":
     pass  # leaves the template as is

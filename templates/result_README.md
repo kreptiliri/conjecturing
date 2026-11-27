@@ -3,7 +3,11 @@
 | | |
 |---|---|
 | Direction | {direction} |
-| Lean gate | {gate} ({layers}) |
+| Result type | {scope} |
+| Open before we started | {eligibility} (ELIGIBILITY.md) |
+| Prior art at publication | {prior} (PRIOR_ART.md) |
+| Referee | {referee} (REVIEW.md) |
+| Lean gate | {gate}: the full locked statement ({layers}) |
 | Axioms used | {axioms} |
 | Lean | {lean} |
 | Human review | {approved} |
@@ -22,7 +26,9 @@ human review is for. See `PRIOR_ART.md` for whether this was already known.
 - `GATE_RECEIPT.json`: what the gate checked
 - `verify.py`, `verify_independent.py`: two independently written exact checks
 - `candidate.json`, `NOTES.md`: the witness and search notes
-- `PRIOR_ART.md`: prior-resolution search
+- `ELIGIBILITY.md`: open-status check done before any hunting
+- `PRIOR_ART.md`: prior-resolution search, repeated before publishing
+- `REVIEW.md`: adversarial referee report on the note
 - `paper.tex` / `paper.pdf`: the note
 
 ## Reproduce

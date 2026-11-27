@@ -9,6 +9,7 @@ Layers (each one alone would catch most cheats; together they are the point):
   1. lock     - Challenge.lean hash matches challenge.lock
   2. lint     - solution text: allowed imports only, no banned tokens
   3. compile  - Challenge and Solution compile to .olean in a scratch dir
+                (--strict: warnings in Solution.lean are errors)
   4. pin      - Check.lean states the target itself and must accept Solution.main
   5. axioms   - only propext, Classical.choice, Quot.sound (catches sorry,
                 native_decide, custom axioms, transitively)
@@ -190,7 +191,7 @@ run_cmd do
 def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
              lake_project: Path | None = None,
              timeout: int = 1800, mem_gb: int = 8, paranoid: bool = False,
-             skip_lint: bool = False) -> GateResult:
+             skip_lint: bool = False, strict: bool = False) -> GateResult:
     t0 = time.time()
     res = GateResult(slug=problem_dir.name, direction=direction)
     challenge = problem_dir / "Challenge.lean"
@@ -228,7 +229,7 @@ def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
             res.lean_version = subprocess.run([lean, "--version"], capture_output=True, text=True).stdout.strip()
             run = lambda cmd, layer: _run(cmd, w, env, timeout, layer)
             run([lean, mem, "-o", "out/Challenge.olean", "Challenge.lean"], "compile")
-            run([lean, mem, "-o", "out/Solution.olean", "Solution.lean"], "compile")
+            run([lean, mem, *(["-DwarningAsError=true"] if strict else []), "-o", "out/Solution.olean", "Solution.lean"], "compile")
             res.layers_passed.append("compile")
             # 4. pin: the locked target must be proved by Solution.main
             try:

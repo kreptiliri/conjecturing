@@ -27,6 +27,37 @@ def problem_dir(slug: str) -> Path:
     return d
 
 
+def research_dir(slug: str) -> Path:
+    """Committed notes: eligibility checks and failed attempts, so nobody redoes them."""
+    d = ROOT / "research" / slug
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def front_matter(md: Path) -> dict:
+    lines = md.read_text().splitlines()
+    out = {}
+    if lines and lines[0].strip() == "---":
+        for l in lines[1:]:
+            if l.strip() == "---":
+                break
+            if ":" in l:
+                k, v = l.split(":", 1)
+                out[k.strip()] = v.strip()
+    return out
+
+
+def verdict(path: Path) -> str:
+    """Last `VERDICT: x` line of an agent report, lowercased; 'missing' if none."""
+    if not path.exists():
+        return "missing"
+    for line in reversed(path.read_text().splitlines()):
+        line = line.strip().strip("`*").strip()
+        if line.upper().startswith("VERDICT:"):
+            return line.split(":", 1)[1].strip().strip("`*").lower()
+    return "missing"
+
+
 def run_dir(slug: str) -> Path:
     d = ROOT / "runs" / slug
     d.mkdir(parents=True, exist_ok=True)
@@ -48,6 +79,47 @@ def mark(slug: str, stage: str, **info) -> None:
     save_state(slug, st)
 
 
+# ---------------------------------------------------------------- before hunting
+def duplicates(slug: str) -> list[str]:
+    """Other problems/results with the same source and statement number."""
+    me = front_matter(problem_dir(slug) / "problem.md")
+    key = (me.get("source_id", "").lower(), me.get("statement", "").lower())
+    if not all(key):
+        return []
+    hits = []
+    for md in list((ROOT / "problems").glob("*/problem.md")) + list((ROOT / "results").glob("*/problem.md")):
+        if md.parent.name == slug:
+            continue
+        fm = front_matter(md)
+        if (fm.get("source_id", "").lower(), fm.get("statement", "").lower()) == key:
+            hits.append(str(md.parent.relative_to(ROOT)))
+    return sorted(set(hits))
+
+
+def eligibility(slug: str, agent: str) -> str:
+    pd = problem_dir(slug)
+    ws = agents.make_workspace(run_dir(slug) / "eligibility", {
+        "problem.md": pd / "problem.md", "Challenge.lean": pd / "Challenge.lean"})
+    agents.run_agent(agent, "eligibility", ws)
+    v = verdict(ws / "ELIGIBILITY.md")
+    if (ws / "ELIGIBILITY.md").exists():
+        shutil.copy(ws / "ELIGIBILITY.md", research_dir(slug) / "ELIGIBILITY.md")
+    mark(slug, "eligibility", verdict=v)
+    return v
+
+
+def archive_attempts(slug: str, dirs: list[Path]) -> Path:
+    """Keep every hunter's notes (including failures) in research/<slug>/."""
+    out = research_dir(slug) / f"ATTEMPTS-{time.strftime('%Y%m%d-%H%M%S')}.md"
+    parts = [f"# Hunt attempts for {slug}\n"]
+    for d in dirs:
+        cand = (d / "candidate.json").read_text() if (d / "candidate.json").exists() else "(no candidate.json)"
+        notes = (d / "NOTES.md").read_text() if (d / "NOTES.md").exists() else "(no NOTES.md)"
+        parts.append(f"## {d.name}\n\n```json\n{cand.strip()}\n```\n\n{notes.strip()}\n")
+    out.write_text("\n".join(parts))
+    return out
+
+
 # ---------------------------------------------------------------- hunt
 def hunt(slug: str, agent: str, n: int) -> list[Path]:
     pd = problem_dir(slug)
@@ -60,6 +132,7 @@ def hunt(slug: str, agent: str, n: int) -> list[Path]:
         return ws
     with ThreadPoolExecutor(max_workers=n) as ex:
         dirs = list(ex.map(one, range(1, n + 1)))
+    archive_attempts(slug, dirs)
     found = []
     for d in dirs:
         c = d / "candidate.json"
@@ -152,9 +225,22 @@ def build_pdf(tex: Path) -> Path | None:
     return None
 
 
+def referee(slug: str, agent: str, cand_dir: Path) -> str:
+    pd = problem_dir(slug)
+    files = {n: cand_dir / n for n in ("paper.tex", "paper.pdf", "candidate.json", "PRIOR_ART.md", "NOTES.md")}
+    files |= {"problem.md": pd / "problem.md", "Challenge.lean": pd / "Challenge.lean"}
+    ws = agents.make_workspace(cand_dir.parent / f"referee-{cand_dir.name}", files)
+    agents.run_agent(agent, "referee", ws)
+    if (ws / "REVIEW.md").exists():
+        shutil.copy(ws / "REVIEW.md", cand_dir / "REVIEW.md")
+    v = verdict(cand_dir / "REVIEW.md")
+    mark(slug, "referee", verdict=v)
+    return v
+
+
 # ---------------------------------------------------------------- package
 RESULT_FILES = ("Solution.lean", "verify.py", "verify_independent.py", "candidate.json",
-                "GATE_RECEIPT.json", "PRIOR_ART.md", "paper.tex", "paper.pdf", "NOTES.md")
+                "GATE_RECEIPT.json", "PRIOR_ART.md", "REVIEW.md", "paper.tex", "paper.pdf", "NOTES.md")
 
 
 def package(slug: str, cand_dir: Path) -> Path:
@@ -164,6 +250,9 @@ def package(slug: str, cand_dir: Path) -> Path:
     shutil.copy(pd / "Challenge.lean", out / "Challenge.lean")
     shutil.copy(pd / "challenge.lock", out / "challenge.lock")
     shutil.copy(pd / "problem.md", out / "problem.md")
+    elig = ROOT / "research" / slug / "ELIGIBILITY.md"
+    if elig.exists():
+        shutil.copy(elig, out / "ELIGIBILITY.md")
     for f in RESULT_FILES:
         if (cand_dir / f).exists():
             shutil.copy(cand_dir / f, out / f)
@@ -175,6 +264,7 @@ def package(slug: str, cand_dir: Path) -> Path:
 def write_readme(slug: str) -> None:
     out = ROOT / "results" / slug
     receipt = json.loads((out / "GATE_RECEIPT.json").read_text()) if (out / "GATE_RECEIPT.json").exists() else {}
+    cand = json.loads((out / "candidate.json").read_text()) if (out / "candidate.json").exists() else {}
     tmpl = (ROOT / "templates" / "result_README.md").read_text()
     (out / "README.md").write_text(tmpl.format(
         slug=slug,
@@ -186,5 +276,9 @@ def write_readme(slug: str) -> None:
         challenge_sha=receipt.get("challenge_sha256", "?"),
         solution_sha=receipt.get("solution_sha256", "?"),
         pdf="[paper.pdf](paper.pdf)" if (out / "paper.pdf").exists() else "not built",
+        scope=cand.get("scope", "?"),
+        eligibility=verdict(out / "ELIGIBILITY.md"),
+        prior=verdict(out / "PRIOR_ART.md"),
+        referee=verdict(out / "REVIEW.md"),
         approved="yes, see APPROVAL.md" if (out / "APPROVAL.md").exists() else "**no: awaiting human review**",
     ))
