@@ -149,6 +149,17 @@ templates/           paper.tex, result README
 tests/               gate self-test, cheats/, fake_agent.py
 ```
 
+## Adversarial regression coverage
+
+Run `python3 tests/run_gate_tests.py` for 51 checks, including 17 additional cheats
+with exact expected rejection layers and two valid syntax controls. Run
+`python3 -m unittest discover -s tests -v` for build and pipeline trust-boundary
+regressions. See [REVIEW_NOTES.md](REVIEW_NOTES.md) for every trial and result,
+the notation-shadowing acceptance bug, and remaining isolation assumptions.
+The gate now requires `leanchecker`; elan toolchains are resolved automatically.
+Workspace read-only permissions are checked after agents run, but operating-system
+isolation is still required to protect canonical files from same-user processes.
+
 ## Gate options
 
 `--strict` treats warnings in Solution.lean as errors. `--paranoid` adds the independent
