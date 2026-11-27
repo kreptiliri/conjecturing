@@ -1,0 +1,4 @@
+n=48 m=72 degmin=3 degmax=3 connected=1
+maximal matching <=15: 1 size=15 : 0-1 2-3 4-5 6-7 8-9 10-11 12-13 14-15 16-17 18-19 20-21 22-23 24-25 26-27 28-29
+independent dominating set <=15: 0 nodes=94687
+independent dominating set <=16: 1 nodes=17 size=16 : 0 16 18 20 8 12 6 4 22 2 14 24 26 11 28 47
