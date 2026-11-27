@@ -21,7 +21,11 @@ def load_config() -> dict:
 
 
 def make_workspace(dest: Path, files: dict[str, Path], readonly: tuple[str, ...] = ("Challenge.lean",)) -> Path:
-    dest.mkdir(parents=True, exist_ok=True)
+    if dest.is_symlink():
+        raise ValueError("workspace must not be a symlink")
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir(parents=True)
     for name, src in files.items():
         if src.exists():
             shutil.copy(src, dest / name)
@@ -38,6 +42,8 @@ def render_prompt(role: str, extra: str = "") -> str:
 
 
 def run_agent(agent: str, role: str, workspace: Path, extra: str = "", timeout: int | None = None) -> int:
+    protected = workspace / "Challenge.lean"
+    original = protected.read_bytes() if protected.exists() else None
     cfg = load_config()
     a = cfg["agents"][agent]
     prompt = render_prompt(role, extra)
@@ -51,7 +57,20 @@ def run_agent(agent: str, role: str, workspace: Path, extra: str = "", timeout: 
     with open(workspace / f"agent-{role}.log", "w") as log:
         try:
             p = subprocess.run(cmd, cwd=workspace, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=t)
-            return p.returncode
+            code = p.returncode
         except subprocess.TimeoutExpired:
             log.write(f"\n[harness] timed out after {t}s\n")
-            return 124
+            code = 124
+
+    # Mode bits are advisory for a same-user agent. Detect replacement and chmod edits.
+    if original is not None and (protected.is_symlink() or not protected.exists()
+                                 or protected.read_bytes() != original
+                                 or protected.stat().st_mode & 0o222):
+        if protected.is_symlink() or protected.is_file():
+            protected.unlink()
+        elif protected.exists():
+            shutil.rmtree(protected)
+        protected.write_bytes(original)
+        protected.chmod(0o444)
+        return 125
+    return code

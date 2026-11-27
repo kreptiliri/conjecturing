@@ -13,5 +13,7 @@ jobs:
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Gate self-test (honest passes, cheats fail)
         run: python3 tests/run_gate_tests.py
+      - name: Trust-boundary regression tests
+        run: python3 -m unittest discover -s tests -v
       - name: Re-gate every published result
         run: python3 -m harness verify-results

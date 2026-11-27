@@ -17,6 +17,8 @@ from pathlib import Path
 def run_verifier(script: Path, files: list[Path], timeout: int = 600) -> dict:
     with tempfile.TemporaryDirectory(prefix="repro-") as td:
         w = Path(td)
+        if len({script.name, *(f.name for f in files)}) != len(files) + 1:
+            raise RuntimeError("verifier/shared file basename collision")
         shutil.copy(script, w / script.name)
         for f in files:
             if f.exists():
@@ -24,10 +26,24 @@ def run_verifier(script: Path, files: list[Path], timeout: int = 600) -> dict:
         env = {k: os.environ[k] for k in ("PATH", "HOME", "LANG") if k in os.environ}
         p = subprocess.run(["python3", "-I", script.name], cwd=w, env=env,
                            capture_output=True, text=True, timeout=timeout)
-        lines = [l for l in p.stdout.splitlines() if l.startswith("RESULT ")]
-        if p.returncode != 0 or not lines:
+        lines = p.stdout.splitlines()
+        if p.returncode != 0 or not lines or not lines[-1].startswith("RESULT ") or sum(l.startswith("RESULT ") for l in lines) != 1:
             raise RuntimeError(f"{script.name}: exit {p.returncode}, no RESULT line\n{p.stderr[-2000:]}")
-        return json.loads(lines[-1][len("RESULT "):])
+        def unique(pairs):
+            obj = {}
+            for k, v in pairs:
+                if k in obj:
+                    raise ValueError(f"duplicate JSON key: {k}")
+                obj[k] = v
+            return obj
+        def invalid_constant(value):
+            raise ValueError(f"non-finite JSON value: {value}")
+        result = json.loads(lines[-1][len("RESULT "):], object_pairs_hook=unique,
+                            parse_constant=invalid_constant)
+        if (not isinstance(result, dict) or set(result) != {"witness", "conjecture_holds_at_witness"}
+                or type(result["conjecture_holds_at_witness"]) is not bool):
+            raise ValueError("RESULT must contain witness and a boolean conjecture_holds_at_witness")
+        return result
 
 
 def compare(a: Path, b: Path, shared: list[Path]) -> tuple[bool, dict, dict]:

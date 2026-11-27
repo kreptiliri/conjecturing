@@ -92,7 +92,21 @@ def strip_comments(src: str) -> str:
     """Remove Lean comments (nested /- -/ blocks and -- lines)."""
     out, i, depth, n = [], 0, 0, len(src)
     while i < n:
-        if src.startswith("/-", i):
+        if not depth and src[i] in ('"', "«"):
+            end = '"' if src[i] == '"' else "»"
+            start = i
+            i += 1
+            while i < n:
+                if end == '"' and src[i] == "\\":
+                    i += 2
+                    continue
+                if src[i] == end:
+                    i += 1
+                    break
+                i += 1
+            out.append(src[start:i])
+        elif src.startswith("/-", i):
+            out.append(" ")
             depth += 1
             i += 2
         elif depth and src.startswith("-/", i):
@@ -144,6 +158,8 @@ def _run(cmd, cwd, env, timeout, layer):
     try:
         p = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True,
                            timeout=timeout)
+    except OSError as e:
+        raise GateFail(layer, f"could not execute tool: {e}") from e
     except subprocess.TimeoutExpired:
         raise GateFail(layer, f"timeout after {timeout}s: {' '.join(map(str, cmd[:3]))}")
     log = (p.stdout or "") + (p.stderr or "")
@@ -155,15 +171,17 @@ def _run(cmd, cwd, env, timeout, layer):
 def _toolchain(lake_project: Path | None):
     """Return (lean_binary_dir, base LEAN_PATH)."""
     if lake_project:
-        lp = subprocess.run(["lake", "env", "printenv", "LEAN_PATH"], cwd=lake_project,
-                            capture_output=True, text=True, check=True).stdout.strip()
-        lean = subprocess.run(["lake", "env", "which", "lean"], cwd=lake_project,
-                              capture_output=True, text=True, check=True).stdout.strip()
+        env = _clean_env("")
+        lp = _run(["lake", "env", "printenv", "LEAN_PATH"], lake_project,
+                  env, 60, "compile").strip()
+        lean = _run(["lake", "env", "which", "lean"], lake_project,
+                    env, 60, "compile").strip()
         return Path(lean).parent, lp
     lean = shutil.which("lean")
     if not lean:
         raise GateFail("compile", "lean not found on PATH (install elan, or pass --lake-project)")
-    return Path(lean).resolve().parent, str(Path(lean).resolve().parent.parent / "lib" / "lean")
+    prefix = _run([lean, "--print-prefix"], Path.cwd(), _clean_env(""), 60, "compile").strip()
+    return Path(prefix) / "bin", str(Path(prefix) / "lib" / "lean")
 
 
 CHECK_TEMPLATE = """import Challenge
@@ -180,7 +198,13 @@ import Lean
 open Lean Elab Command in
 run_cmd do
   let allowed : Array Name := #[{allowed}]
-  let axs ← Lean.collectAxioms ``Gate.pinned
+  let pinnedName := Name.str (Name.str Name.anonymous "Gate") "pinned"
+  let conjecture := Expr.const (Name.str (Name.str Name.anonymous "Challenge") "Conjecture") []
+  let expected : Expr := {expected}
+  let pinned ← getConstInfo pinnedName
+  unless pinned.type == expected do
+    throwError "GATE_FAIL pinned type differs from locked target"
+  let axs ← Lean.collectAxioms pinnedName
   logInfo m!"GATE_AXIOMS {{axs.toList}}"
   for a in axs do
     unless allowed.contains a do
@@ -203,14 +227,16 @@ def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
         if not lock.exists():
             raise GateFail("lock", "challenge.lock missing: run `harness lock <slug>` after a human reviews Challenge.lean")
         want = json.loads(lock.read_text())["sha256"]
-        res.challenge_sha256 = sha256(challenge)
+        challenge_bytes = challenge.read_bytes()
+        res.challenge_sha256 = hashlib.sha256(challenge_bytes).hexdigest()
         if res.challenge_sha256 != want:
             raise GateFail("lock", "Challenge.lean changed since it was locked")
         res.layers_passed.append("lock")
-        res.solution_sha256 = sha256(solution_file)
+        solution_bytes = solution_file.read_bytes()
+        res.solution_sha256 = hashlib.sha256(solution_bytes).hexdigest()
         # 2. lint
         if not skip_lint:
-            lint(solution_file.read_text(), allow_mathlib=lake_project is not None)
+            lint(solution_bytes.decode(), allow_mathlib=lake_project is not None)
             res.layers_passed.append("lint")
         # 3. compile
         bindir, base_path = _toolchain(lake_project)
@@ -219,14 +245,16 @@ def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
         with tempfile.TemporaryDirectory(prefix="gate-") as td:
             w = Path(td)
             (w / "out").mkdir()
-            shutil.copy(challenge, w / "Challenge.lean")          # the LOCKED copy
-            shutil.copy(solution_file, w / "Solution.lean")
+            (w / "Challenge.lean").write_bytes(challenge_bytes)          # the LOCKED copy
+            (w / "Solution.lean").write_bytes(solution_bytes)
             target = "Challenge.Conjecture" if direction == "proof" else "¬ Challenge.Conjecture"
             allowed = ", ".join(f"``{a}" for a in STANDARD_AXIOMS)
             (w / "Check.lean").write_text(CHECK_TEMPLATE.format(target=target))
-            (w / "Audit.lean").write_text(AUDIT_TEMPLATE.format(allowed=allowed))
+            expected = ("conjecture" if direction == "proof" else
+                        'Expr.app (Expr.const (Name.str Name.anonymous "Not") []) conjecture')
+            (w / "Audit.lean").write_text(AUDIT_TEMPLATE.format(allowed=allowed, expected=expected))
             env = _clean_env(f"{w / 'out'}{os.pathsep}{base_path}")
-            res.lean_version = subprocess.run([lean, "--version"], capture_output=True, text=True).stdout.strip()
+            res.lean_version = _run([lean, "--version"], w, env, timeout, "compile").strip()
             run = lambda cmd, layer: _run(cmd, w, env, timeout, layer)
             run([lean, mem, "-o", "out/Challenge.olean", "Challenge.lean"], "compile")
             run([lean, mem, *(["-DwarningAsError=true"] if strict else []), "-o", "out/Solution.olean", "Solution.lean"], "compile")
@@ -242,11 +270,15 @@ def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
             try:
                 log = run([lean, mem, "Audit.lean"], "axioms")
             except GateFail as e:
+                if "GATE_FAIL pinned type differs" in e.log:
+                    e.layer, e.reason = "pin", "kernel type differs from locked target"
                 if "GATE_FAIL non-standard axiom" in e.log:
                     e.reason = "non-standard axiom: " + e.log.split("GATE_FAIL non-standard axiom", 1)[1].split()[0]
                 raise
             m = re.search(r"GATE_AXIOMS \[(.*?)\]", log)
-            res.axioms = [a.strip() for a in m.group(1).split(",") if a.strip()] if m else []
+            if not m:
+                raise GateFail("axioms", "audit produced no axiom report", log)
+            res.axioms = [a.strip() for a in m.group(1).split(",") if a.strip()]
             res.layers_passed.append("axioms")
             # 6. recheck every declaration from the .oleans
             checker = bindir / "leanchecker"
@@ -254,7 +286,7 @@ def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
                 run([str(checker), "--fresh", "Check"], "recheck")
                 res.layers_passed.append("recheck")
             else:
-                res.log_tail += "warning: leanchecker not found; recheck skipped\n"
+                raise GateFail("recheck", "leanchecker not found; refusing to skip kernel recheck")
             # 7. optional independent kernel
             if paranoid:
                 exp, cl = bindir / "leanexport", bindir / "con-leche"
@@ -270,5 +302,7 @@ def run_gate(problem_dir: Path, solution_file: Path, direction: str, *,
     except GateFail as e:
         res.failed_layer, res.reason = e.layer, e.reason
         res.log_tail += "\n".join((e.log or "").splitlines()[-40:])
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as e:
+        res.failed_layer, res.reason = "compile", f"gate infrastructure failure: {e}"
     res.seconds = round(time.time() - t0, 2)
     return res

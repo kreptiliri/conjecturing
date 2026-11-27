@@ -9,6 +9,7 @@ Trust boundaries:
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import time
@@ -48,14 +49,30 @@ def front_matter(md: Path) -> dict:
 
 
 def verdict(path: Path) -> str:
-    """Last `VERDICT: x` line of an agent report, lowercased; 'missing' if none."""
+    """Require one standalone verdict outside Markdown fences."""
     if not path.exists():
         return "missing"
-    for line in reversed(path.read_text().splitlines()):
-        line = line.strip().strip("`*").strip()
-        if line.upper().startswith("VERDICT:"):
-            return line.split(":", 1)[1].strip().strip("`*").lower()
-    return "missing"
+    values = []
+    fenced = False
+    for line in path.read_text().splitlines():
+        text = line.strip()
+        if text.startswith(("```", "~~~")):
+            fenced = not fenced
+            continue
+        if not fenced:
+            m = re.fullmatch(r"VERDICT:\s*([a-zA-Z][a-zA-Z -]*)", text, re.IGNORECASE)
+            if text.upper().startswith("VERDICT:") and not m:
+                return "missing"
+            if m:
+                values.append(m.group(1).strip().lower())
+    allowed = {"open", "new", "already known", "accept", "reject", "uncertain", "not open", "resolved", "revised", "unclear", "statement since revised", "revise"}
+    return values[0] if len(values) == 1 and values[0] in allowed else "missing"
+
+
+def _run_agent(*args, **kwargs):
+    code = agents.run_agent(*args, **kwargs)
+    if code != 0:
+        raise RuntimeError(f"agent failed (exit {code}); refusing its artifacts")
 
 
 def run_dir(slug: str) -> Path:
@@ -100,7 +117,7 @@ def eligibility(slug: str, agent: str) -> str:
     pd = problem_dir(slug)
     ws = agents.make_workspace(run_dir(slug) / "eligibility", {
         "problem.md": pd / "problem.md", "Challenge.lean": pd / "Challenge.lean"})
-    agents.run_agent(agent, "eligibility", ws)
+    _run_agent(agent, "eligibility", ws)
     v = verdict(ws / "ELIGIBILITY.md")
     if (ws / "ELIGIBILITY.md").exists():
         shutil.copy(ws / "ELIGIBILITY.md", research_dir(slug) / "ELIGIBILITY.md")
@@ -127,7 +144,7 @@ def hunt(slug: str, agent: str, n: int) -> list[Path]:
     def one(i: int) -> Path:
         ws = agents.make_workspace(base / f"hunt-{i:02d}", {
             "problem.md": pd / "problem.md", "Challenge.lean": pd / "Challenge.lean"})
-        agents.run_agent(agent, "hunter", ws, extra=f"You are hunter #{i} of {n}. "
+        _run_agent(agent, "hunter", ws, extra=f"You are hunter #{i} of {n}. "
                          f"Pick a search strategy different from the obvious one if i > 1 (i={i}).")
         return ws
     with ThreadPoolExecutor(max_workers=n) as ex:
@@ -151,12 +168,19 @@ def reproduce(slug: str, agent: str, cand_dir: Path) -> bool:
     pd = problem_dir(slug)
     ws = agents.make_workspace(cand_dir.parent / f"repro-{cand_dir.name}", {
         "problem.md": pd / "problem.md", "candidate.json": cand_dir / "candidate.json"})
-    agents.run_agent(agent, "reproducer", ws)
+    _run_agent(agent, "reproducer", ws)
     ind = ws / "verify_independent.py"
     if not ind.exists():
         mark(slug, "reproduce", ok=False, reason="reproducer wrote no verify_independent.py")
         return False
-    same, ra, rb = repro.compare(cand_dir / "verify.py", ind, [cand_dir / "candidate.json"])
+    try:
+        same, ra, rb = repro.compare(cand_dir / "verify.py", ind, [cand_dir / "candidate.json"])
+        candidate = json.loads((cand_dir / "candidate.json").read_text())
+        same = (same and ra["conjecture_holds_at_witness"] is False
+                and json.dumps(ra["witness"], sort_keys=True) == json.dumps(candidate["witness"], sort_keys=True))
+    except (ValueError, RuntimeError, OSError, KeyError, subprocess.SubprocessError) as e:
+        mark(slug, "reproduce", ok=False, reason=str(e))
+        return False
     shutil.copy(ind, cand_dir / "verify_independent.py")
     mark(slug, "reproduce", ok=same, hunter=ra, independent=rb, candidate=cand_dir.name)
     return same
@@ -170,7 +194,7 @@ def formalize(slug: str, agent: str, cand_dir: Path, direction: str, iters: int 
         "candidate.json": cand_dir / "candidate.json", "NOTES.md": cand_dir / "NOTES.md"})
     res = gate.GateResult(reason="formalizer produced no Solution.lean")
     for k in range(1, iters + 1):
-        agents.run_agent(agent, "formalizer", ws, extra=f"Target direction: {direction}. Attempt {k} of {iters}.")
+        _run_agent(agent, "formalizer", ws, extra=f"Target direction: {direction}. Attempt {k} of {iters}.")
         sol = ws / "Solution.lean"
         if not sol.exists():
             continue
@@ -178,6 +202,8 @@ def formalize(slug: str, agent: str, cand_dir: Path, direction: str, iters: int 
         (ws / "GATE_RECEIPT.json").write_text(res.to_json())
         if res.ok:
             shutil.copy(sol, cand_dir / "Solution.lean")
+            if gate.sha256(cand_dir / "Solution.lean") != res.solution_sha256:
+                raise RuntimeError("Solution.lean changed after the gate checked it")
             shutil.copy(ws / "GATE_RECEIPT.json", cand_dir / "GATE_RECEIPT.json")
             break
         (ws / "FEEDBACK.md").write_text(
@@ -191,7 +217,7 @@ def prior_art(slug: str, agent: str, cand_dir: Path) -> None:
     pd = problem_dir(slug)
     ws = agents.make_workspace(cand_dir.parent / f"prior-{cand_dir.name}", {
         "problem.md": pd / "problem.md", "candidate.json": cand_dir / "candidate.json"})
-    agents.run_agent(agent, "prior_art", ws)
+    _run_agent(agent, "prior_art", ws)
     if (ws / "PRIOR_ART.md").exists():
         shutil.copy(ws / "PRIOR_ART.md", cand_dir / "PRIOR_ART.md")
     mark(slug, "prior_art", written=(cand_dir / "PRIOR_ART.md").exists())
@@ -204,7 +230,7 @@ def writeup(slug: str, agent: str, cand_dir: Path) -> Path | None:
     files |= {"problem.md": pd / "problem.md", "Challenge.lean": pd / "Challenge.lean",
               "paper.tex": ROOT / "templates" / "paper.tex"}
     ws = agents.make_workspace(cand_dir.parent / f"paper-{cand_dir.name}", files)
-    agents.run_agent(agent, "writer", ws)
+    _run_agent(agent, "writer", ws)
     pdf = build_pdf(ws / "paper.tex")
     for f in ("paper.tex", "paper.pdf"):
         if (ws / f).exists():
@@ -230,7 +256,7 @@ def referee(slug: str, agent: str, cand_dir: Path) -> str:
     files = {n: cand_dir / n for n in ("paper.tex", "paper.pdf", "candidate.json", "PRIOR_ART.md", "NOTES.md")}
     files |= {"problem.md": pd / "problem.md", "Challenge.lean": pd / "Challenge.lean"}
     ws = agents.make_workspace(cand_dir.parent / f"referee-{cand_dir.name}", files)
-    agents.run_agent(agent, "referee", ws)
+    _run_agent(agent, "referee", ws)
     if (ws / "REVIEW.md").exists():
         shutil.copy(ws / "REVIEW.md", cand_dir / "REVIEW.md")
     v = verdict(cand_dir / "REVIEW.md")

@@ -31,6 +31,8 @@ def tampered_problem() -> Path:
 cases = [("honest", PROBLEM, HONEST, "disproof", False, True),
          ("honest, wrong direction", PROBLEM, HONEST, "proof", False, False),
          ("honest, Challenge.lean edited after lock", tampered_problem(), HONEST, "disproof", False, False)]
+for valid in sorted((ROOT / "tests" / "valid").glob("*.lean")):
+    cases.append((valid.stem, PROBLEM, valid, "disproof", False, True))
 for c in CHEATS:
     cases.append((f"{c.stem} (lint on)", PROBLEM, c, "disproof", False, False))
     cases.append((f"{c.stem} (lint OFF)", PROBLEM, c, "disproof", True, False))
@@ -39,15 +41,19 @@ for c in CHEATS:
 def go(case):
     name, prob, sol, direction, skip_lint, want = case
     r = run_gate(prob, sol, direction, skip_lint=skip_lint, timeout=600)
-    return name, want, r
+    expected = None
+    first = sol.read_text().splitlines()[0]
+    if not want and first.startswith("-- EXPECT: "):
+        expected = first.split()[2 + int(skip_lint)]
+    return name, want, expected, r
 
 
 with ThreadPoolExecutor(max_workers=4) as ex:
     results = list(ex.map(go, cases))
 
 bad = 0
-for name, want, r in results:
-    good = r.ok == want
+for name, want, expected, r in results:
+    good = r.ok == want and (expected is None or r.failed_layer == expected)
     bad += not good
     verdict = "PASS" if r.ok else f"rejected at {r.failed_layer}: {r.reason}"
     print(f"{'ok ' if good else 'BAD'}  {name:<42} {verdict}")
